@@ -1,0 +1,15 @@
+{
+  "name": "strawpoll",
+  "version": "1.0.0",
+  "description": "pollbot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "DeLeezo",
+  "license": "ISC",
+  "dependencies": {
+    "nightmare": "^3.0.1",
+    "vo": "^4.0.2"
+  }
+}
