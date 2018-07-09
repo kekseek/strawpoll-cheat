@@ -1,6 +1,6 @@
 function parseConsoleArgs() {
-	const strawpoll_id = process.argv[2];
-	const fields_to_click = process.argv.slice(3);
+	const strawpoll_id 		= process.argv[2];
+	const fields_to_click 	= process.argv.slice(3);
 
 	if (!strawpoll_id) {
 		throw new Error("Invalid input: "
@@ -19,9 +19,9 @@ function parseConsoleArgs() {
 }
 
 function* nigthmareLoop() {
-	var Nightmare = require('nightmare'),
-	nightmare = Nightmare({ show: true }),
-	parsedConsoleObj = parseConsoleArgs();
+	var Nightmare 		= require('nightmare'),
+	nightmare 			= Nightmare({ show: true }),
+	parsedConsoleObj 	= parseConsoleArgs();
 	
 	for (let i = 0; i < 100; i++) {
 		yield nightmare
