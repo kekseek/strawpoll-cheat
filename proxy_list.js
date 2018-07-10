@@ -1,20 +1,29 @@
-const Nightmare = require('nightmare'),
-nightmare = new Nightmare({ show: true })
+exports.formProxyList = new Promise(async function (resolve, reject) {
+    const Nightmare = require('nightmare'),
+    nightmare = new Nightmare({ show: false });
 
-exports.formProxyList = function() {
-    const proxies_list = [];
+    let proxies_list = "LOL";
 
-    nightmare
+    await nightmare
         .goto('http://spys.one')
         .wait(400)
-        .evaluate(proxies_list => {
-            proxies_list = Array.from(document.querySelectorAll('tr.spy1xx td:first-child font.spy14'));
-        }, proxies_list)
+        .evaluate(() => {
+            const result = [];
+            for (let element of Array.from(document
+                .querySelectorAll('tr[onmouseover="this.style.background=' + 
+                    '\'#002424\'"] td:first-child > font'))) {
+                result.push(element.innerHTML);            
+            }
+            return result;
+        })
         .end()
-        .then(console.log(`Proxies are parsed.` + proxies_list))
+        .then(result => {
+            proxies_list = result;
+        })
 		.catch(error => {
-			console.error('Search failed:', error)
-		})
-}
-
-exports.formProxyList();
+            console.error('Search failed:', error);
+            reject(new Error('Proxies was not parsed.'));
+        });
+        
+    resolve(proxies_list);
+});

@@ -1,6 +1,6 @@
 function parseConsoleArgs() {
-	const strawpoll_id 		= process.argv[2];
-	const fields_to_click 	= process.argv.slice(3);
+	const strawpoll_id       = process.argv[2];
+	const fields_to_click    = process.argv.slice(3);
 
 	if (!strawpoll_id) {
 		throw new Error("Invalid input: "
@@ -18,42 +18,54 @@ function parseConsoleArgs() {
 	return { strawpoll_id, fields_to_click };
 }
 
-function* nigthmareLoop() {
-	var Nightmare 		= require('nightmare'),
-	nightmare 			= Nightmare({ show: true }),
-	parsedConsoleObj 	= parseConsoleArgs();
+function* nigthmareLoop(proxy_list) {
+	console.log(proxy_list);
+
+	const Nightmare          = require('nightmare'),
+		parsedConsoleObj     = parseConsoleArgs(),
+		strawpoll_id         = parsedConsoleObj.strawpoll_id,
+		fields_to_click      = parsedConsoleObj.fields_to_click;
 	
-	for (let i = 0; i < 100; i++) {
+	for (let i = 0, l = proxy_list.length; i < l; i++) {
+		yield nightmare 			=  Nightmare({
+			switches: { 
+				'proxy-server': proxy_list[i]
+			},
+			show: true 
+		});
+
 		yield nightmare
-		.goto(`https://www.strawpoll.me/${parsedConsoleObj.strawpoll_id}`)
-		.wait('form[data-form-type="poll-vote"]')
-		
-		.evaluate(parsedConsoleObj => {
-			let b = Array.from(document.querySelectorAll('#field-options input'));
+			.goto(`https://www.strawpoll.me/${strawpoll_id}`)
+			.wait('form[data-form-type="poll-vote"]')
 			
-			b.forEach((field, ind) => {
-				parsedConsoleObj.fields_to_click.forEach(user_req => {
-					if (ind + 1 == Number(user_req)) {
-						field.click();
-					}
-				})
-			});
-		}, parsedConsoleObj)
-		
-		.click('button[type="submit"]')
-		.wait('span#vote-count')
-		.then(console.log(`Voted. Number ${i + 1}`))
-		.catch(error => {
-			console.error('Search failed:', error)
-		})
+			.evaluate(fields_to_click => {
+				let b = Array.from(document.querySelectorAll('#field-options input'));
+				
+				b.forEach((field, ind) => {
+					fields_to_click.forEach(user_req => {
+						if (ind + 1 == Number(user_req)) {
+							field.click();
+						}
+					})
+				});
+			}, fields_to_click)
+			
+			.click('button[type="submit"]')
+			.wait('span#vote-count' || 'p.error')
+			.end()
+			.then(console.log(`Voted. Number ${i + 1}`))
+			.catch(error => {
+				console.error('Search failed:', error)
+			})
 	}
 };
 
 
-function main() {
-	vo = require('vo');
-	
-	vo(nigthmareLoop)(function (error) {
+async function main() {
+	const vo             = require('vo');
+	const proxy_list     = await require('./proxy_list').formProxyList;
+
+	vo(nigthmareLoop(proxy_list))(function (error) {
 		console.log('done');
 	});
 }
